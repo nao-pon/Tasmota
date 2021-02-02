@@ -394,7 +394,7 @@ TEST(TestIRac, Daikin2) {
   IRrecv capture(kGpioUnused);
   char expected[] =
       "Power: On, Mode: 3 (Cool), Temp: 19C, Fan: 1 (Low), "
-      "Swing(V): 14 (Auto), Swing(H): 170 (UNKNOWN), Clock: 00:00, "
+      "Swing(V): 14 (Off), Swing(H): 170 (Middle), Clock: 00:00, "
       "On Timer: Off, Off Timer: Off, Sleep Timer: Off, Beep: 2 (Loud), "
       "Light: 1 (High), Mould: On, Clean: On, Fresh: Off, Eye: Off, "
       "Eye Auto: Off, Quiet: Off, Powerful: Off, Purify: On, Econo: Off";
@@ -1194,6 +1194,32 @@ TEST(TestIRac, Panasonic) {
   ASSERT_TRUE(IRAcUtils::decodeToState(&ac._irsend.capture, &r, &p));
 }
 
+TEST(TestIRac, Panasonic32) {
+  IRPanasonicAc32 ac(kGpioUnused);
+  IRac irac(kGpioUnused);
+  IRrecv capture(kGpioUnused);
+  char expected[] =
+      "Power Toggle: On, Mode: 4 (Heat), Temp: 28C, Fan: 4 (Medium), "
+      "Swing(H): On, Swing(V): 7 (Auto)";
+
+  ac.begin();
+  irac.panasonic32(&ac,
+                 true,                        // Power
+                 stdAc::opmode_t::kHeat,      // Mode
+                 28,                          // Celsius
+                 stdAc::fanspeed_t::kMedium,  // Fan speed
+                 stdAc::swingv_t::kAuto,      // Vertical swing
+                 stdAc::swingh_t::kLeft);     // Horizontal swing
+  ASSERT_EQ(expected, ac.toString());
+  ac._irsend.makeDecodeResult();
+  EXPECT_TRUE(capture.decode(&ac._irsend.capture));
+  ASSERT_EQ(PANASONIC_AC32, ac._irsend.capture.decode_type);
+  ASSERT_EQ(kPanasonicAc32Bits, ac._irsend.capture.bits);
+  ASSERT_EQ(expected, IRAcUtils::resultAcToString(&ac._irsend.capture));
+  stdAc::state_t r, p;
+  ASSERT_TRUE(IRAcUtils::decodeToState(&ac._irsend.capture, &r, &p));
+}
+
 TEST(TestIRac, Samsung) {
   IRSamsungAc ac(kGpioUnused);
   IRac irac(kGpioUnused);
@@ -1264,7 +1290,7 @@ TEST(TestIRac, Sanyo) {
   char expected[] =
       "Power: On, Mode: 2 (Cool), Temp: 28C, Fan: 3 (Medium), "
       "Swing(V): 7 (Highest), Sleep: On, Beep: On, "
-      "Sensor: Wall, Sensor Temp: 28C, Off Timer: Off";
+      "Sensor: Room, Sensor Temp: 28C, Off Timer: Off";
 
   ac.begin();
   irac.sanyo(&ac,
