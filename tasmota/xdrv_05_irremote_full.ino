@@ -24,31 +24,31 @@ Below is the Pyhton3 code to decompress IR comact format.
 import re
 
 def ir_expand(ir_compact):
-	count = ir_compact.count(',')		# number of occurence of comma
+  count = ir_compact.count(',')   # number of occurence of comma
 
-	if count > 1:
-		return "Unsupported format"
+  if count > 1:
+    return "Unsupported format"
 
-	if count == 1:
-		ir_compact = input.split(',')[1]	# if 1 comma, skip the frequency
+  if count == 1:
+    ir_compact = input.split(',')[1]  # if 1 comma, skip the frequency
 
-	arr = re.findall("(\d+|[A-Za-z])", ir_compact)
+  arr = re.findall("(\d+|[A-Za-z])", ir_compact)
 
-	comp_table = []			# compression history table
-	arr2 = []				# output
+  comp_table = []     # compression history table
+  arr2 = []       # output
 
-	for elt in arr:
-		if len(elt) == 1:
-			c = ord(elt.upper()) - ord('A')
-			if c >= len(arr): return "Error index undefined"
-			arr2.append(comp_table[c])
-		else:
-			comp_table.append(elt)
-			arr2.append(elt)
+  for elt in arr:
+    if len(elt) == 1:
+      c = ord(elt.upper()) - ord('A')
+      if c >= len(arr): return "Error index undefined"
+      arr2.append(comp_table[c])
+    else:
+      comp_table.append(elt)
+      arr2.append(elt)
 
-	out = ",".join(arr2)
+  out = ",".join(arr2)
 
-	return out
+  return out
 ======================================================================
  */
 
@@ -236,7 +236,7 @@ String sendACJsonState(const stdAc::state_t &state) {
 }
 
 void sendIRJsonState(const struct decode_results &results) {
-  Response_P(PSTR("\"" D_JSON_IR_PROTOCOL "\":\"%s\",\"" D_JSON_IR_BITS "\":%d"),
+  ResponseAppend_P(PSTR("\"" D_JSON_IR_PROTOCOL "\":\"%s\",\"" D_JSON_IR_BITS "\":%d"),
                   typeToString(results.decode_type).c_str(),
                   results.bits);
 
@@ -250,10 +250,10 @@ void sendIRJsonState(const struct decode_results &results) {
     } else {
       if (UNKNOWN != results.decode_type) {
         uint64_t reverse = reverseBitsInBytes64(results.value);
-        ResponseAppend_P(PSTR("\"0x%_X\",\"" D_JSON_IR_DATALSB "\":\"0x%_X\""),
+        ResponseAppend_P(PSTR("\"0x%0_X\",\"" D_JSON_IR_DATALSB "\":\"0x%0_X\""),
                          &results.value, &reverse);
       } else {    // UNKNOWN
-        ResponseAppend_P(PSTR("\"0x08X\""), (uint32_t) results.value);  // Unknown is always 32 bits
+        ResponseAppend_P(PSTR("\"0x%08X\""), (uint32_t) results.value);  // Unknown is always 32 bits
       }
     }
   }
