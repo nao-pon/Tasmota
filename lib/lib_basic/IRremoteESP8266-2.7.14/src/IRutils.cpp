@@ -549,6 +549,7 @@ namespace irutils {
           case panasonic_ac_remote_model_t::kPanasonicJke: return F("JKE");
           case panasonic_ac_remote_model_t::kPanasonicCkp: return F("CKP");
           case panasonic_ac_remote_model_t::kPanasonicRkr: return F("RKR");
+          case panasonic_ac_remote_model_t::kPanasonicVcs: return F("VCS");
           default: return kUnknownStr;
         }
         break;
