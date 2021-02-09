@@ -646,7 +646,7 @@ uint8_t IRMitsubishiAC::convertSwingH(const stdAc::swingh_t position) {
     case stdAc::swingh_t::kRightMax: return kMitsubishiAcWideVaneAuto - 3;
     case stdAc::swingh_t::kWide:     return kMitsubishiAcWideVaneAuto - 2;
     case stdAc::swingh_t::kAuto:     return kMitsubishiAcWideVaneAuto;
-    default:                         return kMitsubishiAcWideVaneAuto - 5;
+    default:                         return kMitsubishiAcWideVaneAuto - 8;
   }
 }
 
@@ -719,16 +719,72 @@ stdAc::state_t IRMitsubishiAC::toCommon(void) const {
   result.swingv = toCommonSwingV(_.Vane);
   result.swingh = toCommonSwingH(_.WideVane);
   result.quiet = getFan() == kMitsubishiAcFanSilent;
+  result.beep = _.WeeklyTimer;
+  result.clock = _.Clock;
+  result.weekday = getWeekday();
+  result.clean = _.Clean;
   // Not supported.
   result.turbo = false;
-  result.clean = false;
+  //result.clean = false;
   result.econo = false;
   result.filter = false;
   result.light = false;
-  result.beep = false;
+  //result.beep = false;
   result.sleep = -1;
-  result.clock = -1;
+  //result.clock = -1;
   return result;
+}
+
+/// Change the Weekly Timer Enabled setting.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setWeeklyTimerEnabled(const bool on) {
+  _.WeeklyTimer = on;
+}
+
+/// Get the value of the WeeklyTimer Enabled setting.
+/// @return true, the setting is on. false, the setting is off.
+bool IRMitsubishiAC::getWeeklyTimerEnabled(void) const { return _.WeeklyTimer; }
+
+/// Set the Beep setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setBeep(const bool on) {
+  _.WeeklyTimer = on;
+}
+
+/// Get the Beep setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+bool IRMitsubishiAC::getBeep(void) const {
+  return _.WeeklyTimer;
+}
+
+/// Set the Clean setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setClean(const bool on) {
+  _.Clean = on;
+}
+
+/// Get the Clean setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+bool IRMitsubishiAC::getClean(void) const {
+  return _.Clean;
+}
+
+/// Set the Weekday setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setWeekday(const uint8_t position) {
+  if (position >= 4) {
+    _.WeekdayHigh = 1;
+    _.Weekday = position - 4;
+  } else {
+    _.WeekdayHigh = 0;
+    _.Weekday = position;
+  }
+}
+
+/// Get the Weekday setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+uint8_t IRMitsubishiAC::getWeekday(void) const {
+  return _.WeekdayHigh * 4 + _.Weekday;
 }
 
 /// Convert the internal state into a human readable string.
@@ -793,6 +849,10 @@ String IRMitsubishiAC::toString(void) const {
       result += _.Timer;
       result += ')';
   }
+  result += addBoolToString(_.WeeklyTimer, kBeepStr);
+  result += addBoolToString(_.Clean, kCleanStr);
+  result += addIntToString(getWeekday(), "Weekday");
+  //result += addBoolToString(_.WeeklyTimer, kWeeklyTimerStr);
   return result;
 }
 

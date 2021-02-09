@@ -203,12 +203,11 @@ String sendACJsonState(const stdAc::state_t &state) {
   json.add(PSTR(D_JSON_IRHVAC_VENDOR), typeToString(state.protocol));
   json.add(PSTR(D_JSON_IRHVAC_MODEL), state.model);
 
-  // Home Assistant wants mode to be off if power is also off & vice-versa.
-  if (state.mode == stdAc::opmode_t::kOff || !state.power) {
-    json.add(PSTR(D_JSON_IRHVAC_MODE), IRac::opmodeToString(stdAc::opmode_t::kOff));
+  json.add(PSTR(D_JSON_IRHVAC_MODE), IRac::opmodeToString(state.mode));
+  // Home Assistant wants power to be off if mode is also off.
+  if (state.mode == stdAc::opmode_t::kOff) {
     json.add(PSTR(D_JSON_IRHVAC_POWER),  IRac::boolToString(false));
   } else {
-    json.add(PSTR(D_JSON_IRHVAC_MODE), IRac::opmodeToString(state.mode));
     json.add(PSTR(D_JSON_IRHVAC_POWER), IRac::boolToString(state.power));
   }
   json.add(PSTR(D_JSON_IRHVAC_CELSIUS), IRac::boolToString(state.celsius));
@@ -230,6 +229,8 @@ String sendACJsonState(const stdAc::state_t &state) {
   json.add(PSTR(D_JSON_IRHVAC_CLEAN), IRac::boolToString(state.clean));
   json.add(PSTR(D_JSON_IRHVAC_BEEP), IRac::boolToString(state.beep));
   json.add(PSTR(D_JSON_IRHVAC_SLEEP), state.sleep);
+  json.add(PSTR(D_JSON_IRHVAC_CLOCK), state.clock);
+  json.add(PSTR("Weekday"), state.weekday);
 
   String payload = json.toString(); // copy string before returning, the original is on the stack
   return payload;
@@ -403,6 +404,7 @@ uint32_t IrRemoteCmndIrHvacJson(void)
   state.sleep = -1;  // Don't set any sleep time or modes.
   state.clean = false;  // Turn off any Cleaning options if we can.
   state.clock = -1;  // Don't set any current time if we can avoid it.
+  state.weekday = -1;
 
   JsonParserToken val;
   if (val = root[PSTR(D_JSON_IRHVAC_VENDOR)]) { state.protocol = strToDecodeType(val.getStr()); }
@@ -447,6 +449,8 @@ uint32_t IrRemoteCmndIrHvacJson(void)
   // optional timer and clock
   state.sleep = root.getInt(PSTR(D_JSON_IRHVAC_SLEEP), state.sleep);
   //if (json[D_JSON_IRHVAC_CLOCK]) { state.clock = json[D_JSON_IRHVAC_CLOCK]; }   // not sure it's useful to support 'clock'
+  state.clock = root.getInt(PSTR(D_JSON_IRHVAC_CLOCK), state.clock);
+  state.weekday = root.getInt(PSTR("Weekday"), state.weekday);
 
   if (!IR_RCV_WHILE_SENDING && (irrecv != nullptr)) { irrecv->disableIRIn(); }
   if (stateMode == StateModes::SEND_ONLY || stateMode == StateModes::SEND_STORE) {

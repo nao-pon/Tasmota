@@ -113,6 +113,7 @@ namespace stdAc {
     bool beep;
     int16_t sleep;
     int16_t clock;
+    int8_t weekday;
   } state_t;
 };  // namespace stdAc
 
