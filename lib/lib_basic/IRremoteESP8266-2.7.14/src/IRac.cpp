@@ -1564,7 +1564,7 @@ void IRac::panasonic(IRPanasonicAc *ac, const panasonic_ac_remote_model_t model,
                      const float degrees, const stdAc::fanspeed_t fan,
                      const stdAc::swingv_t swingv, const stdAc::swingh_t swingh,
                      const bool quiet, const bool turbo, const bool filter,
-                     const int16_t clock) {
+                     const int16_t clock, const bool on_timer, const bool off_timer) {
   ac->begin();
   ac->setModel(model);
   ac->setPower(on);
@@ -1576,6 +1576,10 @@ void IRac::panasonic(IRPanasonicAc *ac, const panasonic_ac_remote_model_t model,
   ac->setQuiet(quiet);
   ac->setPowerful(turbo);
   ac->setIon(filter);
+  if (model == panasonic_ac_remote_model_t::kPanasonicVcs) {
+    ac->setOnTimer(0, on_timer);   // use light
+    ac->setOffTimer(0, off_timer); // use beep
+  }
   // No Light setting available.
   // No Econo setting available.
   // No Clean setting available.
@@ -2571,7 +2575,7 @@ bool IRac::sendAc(const stdAc::state_t desired, const stdAc::state_t *prev) {
       IRPanasonicAc ac(_pin, _inverted, _modulation);
       panasonic(&ac, (panasonic_ac_remote_model_t)send.model, send.power,
                 send.mode, degC, send.fanspeed, send.swingv, send.swingh,
-                send.quiet, send.turbo, send.clock);
+                send.quiet, send.turbo, send.filter, send.clock, send.light, send.beep);
       break;
     }
 #endif  // SEND_PANASONIC_AC
