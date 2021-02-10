@@ -148,6 +148,7 @@ enum panasonic_ac_remote_model_t {
   kPanasonicCkp = 5,
   kPanasonicRkr = 6,
   kPanasonicVcs = 7,  // CS-V281CS, CS-V281C2
+  kPanasonicXas = 8,  // CS-X288AS, CS-X288A2
 };
 
 /// Sharp A/C model numbers
