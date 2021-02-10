@@ -241,6 +241,7 @@ void IRPanasonicAc::send(const uint16_t repeat) {
 /// @param[in] model The enum of the appropriate model.
 void IRPanasonicAc::setModel(const panasonic_ac_remote_model_t model) {
   switch (model) {
+    case panasonic_ac_remote_model_t::kPanasonicXas:
     case panasonic_ac_remote_model_t::kPanasonicVcs:
     case panasonic_ac_remote_model_t::kPanasonicDke:
     case panasonic_ac_remote_model_t::kPanasonicJke:
@@ -288,16 +289,24 @@ void IRPanasonicAc::setModel(const panasonic_ac_remote_model_t model) {
       remote_state[13] |= 0x08;
       remote_state[23] = 0x86;
       remote_state[25] = state25;
+      break;
+    case kPanasonicXas:
+      remote_state[13] |= 0x0F;
+      remote_state[17] |= 0x0B;
+      remote_state[23] = 0x81;
+      remote_state[25] |= 0x09; 
     default:
       break;
   }
   // Reset the Ion filter.
   setIon(getIon());
+  setClean(getClean());
 }
 
 /// Get/Detect the model of the A/C.
 /// @return The enum of the compatible model.
 panasonic_ac_remote_model_t IRPanasonicAc::getModel(void) {
+  if (remote_state[23] == 0x81) return kPanasonicXas;
   if (remote_state[23] == 0x86) return kPanasonicVcs;
   if (remote_state[23] == 0x89) return kPanasonicRkr;
   if (remote_state[17] == 0x00) {
@@ -576,8 +585,13 @@ void IRPanasonicAc::_setTime(uint8_t * const ptr,
 /// @param[in] mins_since_midnight The time as nr. of minutes past midnight.
 void IRPanasonicAc::setClock(const uint16_t mins_since_midnight) {
   uint16_t mins = mins_since_midnight;
-  if (getModel() == kPanasonicVcs) {
-    mins = 1024;
+  switch(getModel()) {
+    case kPanasonicVcs:
+      mins = 1024;
+      break;
+    case kPanasonicXas:
+      mins = 352;
+      break;
   }
   _setTime(&remote_state[24], mins, false);
 }
@@ -654,10 +668,26 @@ bool IRPanasonicAc::getIon(void) {
     case kPanasonicVcs:
       return GETBIT8(remote_state[25],
                      2);
+    case kPanasonicXas:
+      return GETBIT8(remote_state[25],
+                     4);
     default:
       return false;
   }
 }
+
+/// Get the Ion (filter) setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+bool IRPanasonicAc::getClean(void) {
+  switch (getModel()) {
+    case kPanasonicXas:
+      return GETBIT8(remote_state[21],
+                     6);
+    default:
+      return false;
+  }
+}
+
 
 /// Set the Ion (filter) setting of the A/C.
 /// @param[in] on true, the setting is on. false, the setting is off.
@@ -671,8 +701,24 @@ void IRPanasonicAc::setIon(const bool on) {
       setBit(&remote_state[25],
             2, on);
       break;
+    case kPanasonicXas:
+      setBit(&remote_state[25],
+            4, on);
+      break;
   }
 }
+
+/// Set the Clean setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRPanasonicAc::setClean(const bool on) {
+  switch (getModel()) {
+    case kPanasonicXas:
+      setBit(&remote_state[21],
+            6, on);
+      break;
+  }
+}
+
 
 /// Convert a stdAc::opmode_t enum into its native mode.
 /// @param[in] mode The enum to be converted.
@@ -798,9 +844,9 @@ stdAc::state_t IRPanasonicAc::toCommon(void) {
   result.filter = getIon();
   result.light = isOnTimerEnabled();
   result.beep = isOffTimerEnabled();
+  result.clean = getClean();
   // Not supported.
   result.econo = false;
-  result.clean = false;
   result.sleep = -1;
   result.clock = -1;
   return result;

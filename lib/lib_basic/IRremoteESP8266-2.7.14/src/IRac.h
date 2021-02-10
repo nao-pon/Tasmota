@@ -351,7 +351,7 @@ void electra(IRElectraAc *ac,
                  const bool on, const stdAc::opmode_t mode, const float degrees,
                  const stdAc::fanspeed_t fan,
                  const stdAc::swingv_t swingv, const stdAc::swingh_t swingh,
-                 const bool quiet, const bool turbo, const bool filter,
+                 const bool quiet, const bool turbo, const bool filter, const bool clean,
                  const int16_t clock = -1, const bool on_timer = false, const bool off_timer = false);
 #endif  // SEND_PANASONIC_AC
 #if SEND_PANASONIC_AC32
