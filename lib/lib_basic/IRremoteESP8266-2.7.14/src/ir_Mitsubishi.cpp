@@ -686,7 +686,7 @@ stdAc::swingv_t IRMitsubishiAC::toCommonSwingV(const uint8_t pos) {
     case 3:  return stdAc::swingv_t::kMiddle;
     case 4:  return stdAc::swingv_t::kLow;
     case 5:  return stdAc::swingv_t::kLowest;
-    default: return stdAc::swingv_t::kAuto;
+    default: return stdAc::swingv_t::kOff;
   }
 }
 
@@ -701,7 +701,7 @@ stdAc::swingh_t IRMitsubishiAC::toCommonSwingH(const uint8_t pos) {
     case 4:  return stdAc::swingh_t::kRight;
     case 5:  return stdAc::swingh_t::kRightMax;
     case 6:  return stdAc::swingh_t::kWide;
-    default: return stdAc::swingh_t::kAuto;
+    default: return stdAc::swingh_t::kOff;
   }
 }
 
