@@ -292,7 +292,7 @@ void IRPanasonicAc::setModel(const panasonic_ac_remote_model_t model) {
       break;
     case kPanasonicXas:
       remote_state[13] |= 0x0F;
-      remote_state[17] |= 0x0B;
+      remote_state[17] |= 0xAB;
       remote_state[23] = 0x81;
       remote_state[25] |= 0x09; 
     default:
@@ -455,7 +455,6 @@ void IRPanasonicAc::setSwingHorizontal(const uint8_t desired_direction) {
   switch (getModel()) {
     case kPanasonicDke:
     case kPanasonicRkr:
-    case kPanasonicVcs:
       break;
     case kPanasonicNke:
     case kPanasonicLke:
