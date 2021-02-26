@@ -113,6 +113,7 @@ namespace stdAc {
     bool beep;
     int16_t sleep;
     int16_t clock;
+    int8_t weekday;
   } state_t;
 };  // namespace stdAc
 
@@ -150,6 +151,8 @@ enum panasonic_ac_remote_model_t {
   kPanasonicJke = 4,
   kPanasonicCkp = 5,
   kPanasonicRkr = 6,
+  kPanasonicVcs = 7,  // CS-V281CS, CS-V281C2
+  kPanasonicXas = 8,  // CS-X288AS, CS-X288A2
 };
 
 /// Sharp A/C model numbers
