@@ -507,6 +507,7 @@ namespace irutils {
           case fujitsu_ac_remote_model_t::ARREB1E: return F("ARREB1E");
           case fujitsu_ac_remote_model_t::ARJW2: return F("ARJW2");
           case fujitsu_ac_remote_model_t::ARRY4: return F("ARRY4");
+          case fujitsu_ac_remote_model_t::ARREW4E: return F("ARREW4E");
           default: return kUnknownStr;
         }
         break;
@@ -550,6 +551,8 @@ namespace irutils {
           case panasonic_ac_remote_model_t::kPanasonicJke: return F("JKE");
           case panasonic_ac_remote_model_t::kPanasonicCkp: return F("CKP");
           case panasonic_ac_remote_model_t::kPanasonicRkr: return F("RKR");
+          case panasonic_ac_remote_model_t::kPanasonicVcs: return F("VCS");
+          case panasonic_ac_remote_model_t::kPanasonicXas: return F("XAS");
           default: return kUnknownStr;
         }
         break;

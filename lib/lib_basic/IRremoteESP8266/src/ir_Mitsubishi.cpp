@@ -98,7 +98,8 @@ using irutils::minsToString;
 #if SEND_MITSUBISHI
 /// Send the supplied Mitsubishi 16-bit message.
 /// Status: STABLE / Working.
-/// @param[in] data The message to be sent.
+/// @param[in] data The message to b
+/// e sent.
 /// @param[in] nbits The number of bits of message to be sent.
 /// @param[in] repeat The number of times the command is to be repeated.
 /// @note This protocol appears to have no header.
@@ -667,7 +668,7 @@ uint8_t IRMitsubishiAC::convertSwingH(const stdAc::swingh_t position) {
     case stdAc::swingh_t::kRightMax: return kMitsubishiAcWideVaneRightMax;
     case stdAc::swingh_t::kWide:     return kMitsubishiAcWideVaneWide;
     case stdAc::swingh_t::kAuto:     return kMitsubishiAcWideVaneAuto;
-    default:                         return kMitsubishiAcWideVaneMiddle;
+    default:                         return kMitsubishiAcWideVaneAuto - 8;
   }
 }
 
@@ -732,7 +733,7 @@ stdAc::swingh_t IRMitsubishiAC::toCommonSwingH(const uint8_t pos) {
     case kMitsubishiAcWideVaneRight:    return stdAc::swingh_t::kRight;
     case kMitsubishiAcWideVaneRightMax: return stdAc::swingh_t::kRightMax;
     case kMitsubishiAcWideVaneWide:     return stdAc::swingh_t::kWide;
-    default:                            return stdAc::swingh_t::kAuto;
+    default:                            return stdAc::swingh_t::kOff;
   }
 }
 
@@ -750,15 +751,16 @@ stdAc::state_t IRMitsubishiAC::toCommon(void) const {
   result.swingv = toCommonSwingV(_.Vane);
   result.swingh = toCommonSwingH(_.WideVane);
   result.quiet = getFan() == kMitsubishiAcFanSilent;
+  result.beep = _.WeeklyTimer;
+  result.clock = _.Clock;
+  result.weekday = getWeekday();
+  result.clean = _.Clean;
   // Not supported.
   result.turbo = false;
-  result.clean = false;
   result.econo = false;
   result.filter = false;
   result.light = false;
-  result.beep = false;
   result.sleep = -1;
-  result.clock = -1;
   return result;
 }
 
@@ -771,6 +773,48 @@ void IRMitsubishiAC::setWeeklyTimerEnabled(const bool on) {
 /// Get the value of the WeeklyTimer Enabled setting.
 /// @return true, the setting is on. false, the setting is off.
 bool IRMitsubishiAC::getWeeklyTimerEnabled(void) const { return _.WeeklyTimer; }
+
+/// Set the Beep setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setBeep(const bool on) {
+  _.WeeklyTimer = on;
+}
+
+/// Get the Beep setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+bool IRMitsubishiAC::getBeep(void) const {
+  return _.WeeklyTimer;
+}
+
+/// Set the Clean setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setClean(const bool on) {
+  _.Clean = on;
+}
+
+/// Get the Clean setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+bool IRMitsubishiAC::getClean(void) const {
+  return _.Clean;
+}
+
+/// Set the Weekday setting of the A/C.
+/// @param[in] on true, the setting is on. false, the setting is off.
+void IRMitsubishiAC::setWeekday(const uint8_t position) {
+  if (position >= 4) {
+    _.WeekdayHigh = 1;
+    _.Weekday = position - 4;
+  } else {
+    _.WeekdayHigh = 0;
+    _.Weekday = position;
+  }
+}
+
+/// Get the Weekday setting of the A/C.
+/// @return true, the setting is on. false, the setting is off.
+uint8_t IRMitsubishiAC::getWeekday(void) const {
+  return _.WeekdayHigh * 4 + _.Weekday;
+}
 
 /// Convert the internal state into a human readable string.
 /// @return A string containing the settings in human-readable form.
@@ -832,7 +876,10 @@ String IRMitsubishiAC::toString(void) const {
       result += _.Timer;
       result += ')';
   }
-  result += addBoolToString(_.WeeklyTimer, kWeeklyTimerStr);
+  result += addBoolToString(_.WeeklyTimer, kBeepStr);
+  result += addBoolToString(_.Clean, kCleanStr);
+  result += addIntToString(getWeekday(), "Weekday");
+  //result += addBoolToString(_.WeeklyTimer, kWeeklyTimerStr);
   return result;
 }
 

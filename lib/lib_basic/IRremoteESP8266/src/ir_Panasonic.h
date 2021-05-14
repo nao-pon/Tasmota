@@ -25,6 +25,10 @@
 //   Brand: Panasonic,  Model: A75C3747 remote (PANASONIC_AC JKE/4)
 //   Brand: Panasonic,  Model: CS-E9CKP series A/C (PANASONIC_AC32)
 //   Brand: Panasonic,  Model: A75C2295 remote (PANASONIC_AC32)
+//   Brand: Panasonic,  Model: CS-V281CS series A/C (PANASONIC_AC VCS/7)
+//   Brand: Panasonic,  Model: A75C3785 remote (PANASONIC_AC VCS/7)
+//   Brand: Panasonic,  Model: CS-X288AS series A/C (PANASONIC_AC XAS/8)
+//   Brand: Panasonic,  Model: A75C3747 remote (PANASONIC_AC XAS/8)
 
 #ifndef IR_PANASONIC_H_
 #define IR_PANASONIC_H_
@@ -133,6 +137,8 @@ class IRPanasonicAc {
   bool getPowerful(void);
   void setIon(const bool on);
   bool getIon(void);
+  void setClean(const bool on);
+  bool getClean(void);
   void setModel(const panasonic_ac_remote_model_t model);
   panasonic_ac_remote_model_t getModel(void);
   void setSwingVertical(const uint8_t elevation);
