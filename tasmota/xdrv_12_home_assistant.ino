@@ -18,6 +18,7 @@
 */
 
 #ifdef USE_HOME_ASSISTANT
+#undef USE_TASMOTA_DISCOVERY
 
 #define XDRV_12 12
 
@@ -174,7 +175,6 @@ const char kHAssError2[] PROGMEM =
 const char kHAssError3[] PROGMEM =
   "HASS: Unable to create one or more entities from Json data, please check your configuration. Failed to parse";
 
-uint8_t hass_init_step = 0;
 uint8_t hass_mode = 0;
 int hass_tele_period = 0;
 
@@ -328,9 +328,7 @@ void NewHAssDiscovery(void)
   ResponseClear(); // Clear retained message
 
   // Full 12 chars MAC address as ID
-  String mac_address = WiFi.macAddress();
-  mac_address.replace(":", "");
-  snprintf_P(unique_id, sizeof(unique_id), PSTR("%s"), mac_address.c_str());
+  snprintf_P(unique_id, sizeof(unique_id), PSTR("%s"), NetworkUniqueId().c_str());
   snprintf_P(stopic, sizeof(stopic), PSTR("tasmota/discovery/%s/config"), unique_id);
 
   // Send empty message if new discovery is disabled
@@ -1082,7 +1080,7 @@ void HAssDiscovery(void)
 void HAssDiscover(void)
 {
   hass_mode = 1;      // Force discovery
-  hass_init_step = 1; // Delayed discovery
+  TasmotaGlobal.discovery_counter = 1; // Delayed discovery
 }
 
 void HAssAnyKey(void)
@@ -1158,10 +1156,10 @@ bool Xdrv12(uint8_t function)
     switch (function)
     {
     case FUNC_EVERY_SECOND:
-      if (hass_init_step)
+      if (TasmotaGlobal.discovery_counter)
       {
-        hass_init_step--;
-        if (!hass_init_step)
+        TasmotaGlobal.discovery_counter--;
+        if (!TasmotaGlobal.discovery_counter)
         {
           HAssDiscovery(); // Scheduled discovery using available resources
           NewHAssDiscovery(); // Send the topics for Home Assistant Official Integration
@@ -1183,7 +1181,7 @@ bool Xdrv12(uint8_t function)
       break;
     case FUNC_MQTT_INIT:
       hass_mode = 0;      // Discovery only if Settings.flag.hass_discovery is set
-      hass_init_step = 10; // Delayed discovery
+      TasmotaGlobal.discovery_counter = 10; // Delayed discovery
       // if (!Settings.flag.hass_discovery) {
       //   NewHAssDiscovery();
       // }
