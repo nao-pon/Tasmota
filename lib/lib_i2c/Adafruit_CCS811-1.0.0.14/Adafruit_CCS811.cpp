@@ -7,7 +7,7 @@
     @returns True if device is set up, false on any failure
 */
 /**************************************************************************/
-sint8_t Adafruit_CCS811::begin(uint8_t addr)
+sint8_t Adafruit_CCS811::begin(uint8_t addr, uint8_t mode)
 {
 	_i2caddr = addr;
 
@@ -36,7 +36,7 @@ sint8_t Adafruit_CCS811::begin(uint8_t addr)
 	disableInterrupt();
 
 	//default to read every second
-	setDriveMode(CCS811_DRIVE_MODE_1SEC);
+	setDriveMode(mode);
 
 	return 0;
 }

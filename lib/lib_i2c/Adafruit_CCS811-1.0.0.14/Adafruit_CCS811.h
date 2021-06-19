@@ -71,7 +71,8 @@ class Adafruit_CCS811 {
 		Adafruit_CCS811(void) {};
 		~Adafruit_CCS811(void) {};
 
-		sint8_t begin(uint8_t addr = CCS811_ADDRESS);
+		//default to read every second
+        sint8_t begin(uint8_t addr = CCS811_ADDRESS, uint8_t mode = CCS811_DRIVE_MODE_1SEC);
 
 		void setEnvironmentalData(uint8_t humidity, double temperature);
 
