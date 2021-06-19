@@ -28,7 +28,11 @@ extern "C" {
 
 #ifndef USE_IRAM_ATTR
 #if defined(ESP8266)
+#if defined(IRAM_ATTR)
+#define USE_IRAM_ATTR IRAM_ATTR
+#else  // IRAM_ATTR
 #define USE_IRAM_ATTR ICACHE_RAM_ATTR
+#endif  // IRAM_ATTR
 #endif  // ESP8266
 #if defined(ESP32)
 #define USE_IRAM_ATTR IRAM_ATTR
@@ -770,6 +774,10 @@ bool IRrecv::decode(decode_results *results, irparams_t *save,
     DPRINTLN("Attempting Haier AC YR-W02 decode");
     if (decodeHaierACYRW02(results, offset)) return true;
 #endif
+#if DECODE_HAIER_AC176
+    DPRINTLN("Attempting Haier AC 176 bit decode");
+    if (decodeHaierAC176(results, offset)) return true;
+#endif  // DECODE_HAIER_AC176
 #if DECODE_HITACHI_AC424
     // HitachiAc424 should be checked before HitachiAC, HitachiAC2,
     // & HitachiAC184

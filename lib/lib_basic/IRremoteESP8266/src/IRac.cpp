@@ -339,16 +339,8 @@ bool IRac::isProtocolSupported(const decode_type_t protocol) {
 #if SEND_VOLTAS
     case decode_type_t::VOLTAS:
 #endif
-#if SEND_WHIRLPOOL_AC
     case decode_type_t::WHIRLPOOL_AC:
-#endif
-// Note: Compiler Warning is disabled because someone could disable all
-//       the protocols before this and it is then unreachable.
-//       "-Wswitch-unreachable" not used as it appears to be an unknown option.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
       return true;
-#pragma GCC diagnostic pop
     default:
       return false;
   }
@@ -522,7 +514,7 @@ void IRac::coolix(IRCoolixAC *ac,
     ac->setTurbo();
     ac->send();
   }
-  if (sleep > 0) {
+  if (sleep >= 0) {
     // Sleep has a special command that needs to be sent independently.
     ac->setSleep();
     ac->send();
